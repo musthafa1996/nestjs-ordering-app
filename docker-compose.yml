@@ -79,8 +79,8 @@ services:
         "--bind_ip_all"
       ]
     volumes:
-      - ./mongo/data1/db:/data/db
-      - ./mongo/data1/configdb:/data/configdb
+      - ./.mongo/data1/db:/data/db
+      - ./.mongo/data1/configdb:/data/configdb
 
   mongo2:
     image: mongo:6.0
@@ -94,8 +94,8 @@ services:
         "--bind_ip_all"
       ]
     volumes:
-      - ./mongo/data2/db:/data/db
-      - ./mongo/data2/configdb:/data/configdb
+      - ./.mongo/data2/db:/data/db
+      - ./.mongo/data2/configdb:/data/configdb
 
   mongo3:
     image: mongo:6.0
@@ -109,8 +109,8 @@ services:
         "--bind_ip_all"
       ]
     volumes:
-      - ./mongo/data3/db:/data/db
-      - ./mongo/data3/configdb:/data/configdb
+      - ./.mongo/data3/db:/data/db
+      - ./.mongo/data3/configdb:/data/configdb
   
   mongo-config:
     image: mongo:6.0
