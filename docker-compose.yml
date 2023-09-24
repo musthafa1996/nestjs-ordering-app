@@ -1,0 +1,123 @@
+# Copyright VMware, Inc.
+# SPDX-License-Identifier: APACHE-2.0
+
+version: '3.8'
+
+services:
+  orders:
+    build:
+      context: .
+      dockerfile: ./apps/orders/Dockerfile
+      target: development
+    command: npm run start:dev orders
+    env_file:
+      - ./apps/orders/.env
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+      - billing
+      - auth
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+
+  billing:
+    build:
+      context: .
+      dockerfile: ./apps/billing/Dockerfile
+      target: development
+    command: npm run start:dev billing
+    env_file:
+      - ./apps/billing/.env
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+      - rabbitmq
+      - auth
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: npm run start:dev auth
+    env_file:
+      - ./apps/auth/.env
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3001:3001'
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - '5672:5672'
+
+  mongo1:
+    image: mongo:6.0
+    container_name: mongo1
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--dbpath",
+        "/data/db",
+        "--bind_ip_all"
+      ]
+    volumes:
+      - ./mongo/data1/db:/data/db
+      - ./mongo/data1/configdb:/data/configdb
+
+  mongo2:
+    image: mongo:6.0
+    container_name: mongo2
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--dbpath",
+        "/data/db",
+        "--bind_ip_all"
+      ]
+    volumes:
+      - ./mongo/data2/db:/data/db
+      - ./mongo/data2/configdb:/data/configdb
+
+  mongo3:
+    image: mongo:6.0
+    container_name: mongo3
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--dbpath",
+        "/data/db",
+        "--bind_ip_all"
+      ]
+    volumes:
+      - ./mongo/data3/db:/data/db
+      - ./mongo/data3/configdb:/data/configdb
+  
+  mongo-config:
+    image: mongo:6.0
+    depends_on: 
+      - mongo1
+      - mongo2
+      - mongo3
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ['./scripts/mongo-setup.sh']
